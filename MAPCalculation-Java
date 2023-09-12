@@ -1,1 +1,295 @@
+// Create the PatientRecord Class
+public class PatientRecord {
 
+    String id; // create the ID variable, String type
+    int sbp; // create the SBP variable, int type
+    int dbp; // create the DBP variable, int type
+    double map; // create the MAP variable, double type
+    String category; // create the category variable, String type
+    
+    // 'this.' this keyword to seperate the parameters of patientRecord and variables that are the same name.
+    public PatientRecord(String id, int sbp, int dbp, double map, String category) {
+        this.id = id; 
+        this.sbp = sbp; 
+        this.dbp = dbp;
+        this.map = map; 
+        this.category = category;
+
+    }
+
+    @Override
+    //toString method (the String type) to return the message <id SBP DBP MAP Category>
+    public String toString() { 
+        return String.format("<%s %d %d %.2f %s>%n", id, sbp, dbp, map, category);
+    }
+    
+    // create the getID method to get and return the patient ID
+    public String getId() {
+        return id;
+    }
+    
+    // create the getSBP method to get and return the patient Sbp
+    public int getSbp() {
+        return sbp;
+    }
+    
+    // create the getDbp method to get and return the patient DBP
+    public int getDbp() {
+        return dbp;
+    }
+    
+    // create the getMAP method to get and return the patient MAP
+    public double getMap() {
+        return map;
+    }
+    
+    // create the getID method to get and return the category
+    public String getCategory() {
+        return category;
+    }
+            
+}
+// create MAPAnalyser class
+public class MAPAnalyser {
+
+    int numRecords; // declare numRecord variable
+    PatientRecord[] patients; // create array list of patient records
+
+    // COntructor
+    public MAPAnalyser() {
+        // populate the array List of patientRecord
+        String[] ids = {"S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12"};
+        int[] sbps = {120, 110, 100, 120, 105, 110, 110, 180, 100, 70, 200, 90};
+        int[] dbps = {60, 70, 80, 80, 80, 60, 90, 110, 50, 45, 110, 80};
+        numRecords = ids.length;
+        patients = new PatientRecord[numRecords];
+        for (int i = 0; i < numRecords; i++) {
+            double map = (sbps[i] * 1 / 3 + dbps[i] * 2 / 3);
+            String category = classify(map);
+            PatientRecord record = new PatientRecord(ids[i], sbps[i], dbps[i], map, category);
+            patients[i] = record;
+        }
+        sortByMAP(); // call the sortByMAP() method
+    }
+    private void sortByMAP() {
+        // sort the MAP value
+        for (int i = 1; i < patients.length; i++) {
+            PatientRecord toInsert = patients[i]; // insert the patient[i] into the PatientRecord
+            int moveTo = i; // the position of patient[i]
+            // interate to check the posiontion of toInsert value by comparing the Insert value with the map value in the previous positon 
+            while (moveTo > 0 && patients[moveTo - 1].getMap() < toInsert.getMap()) { //if the map value of patient in the previous posion less than the mapvalue of patient[i]
+                patients[moveTo] = patients[moveTo - 1]; // place the postion of previous patient by the toInsert
+                moveTo--; //decrease 
+            }
+            patients[moveTo] = toInsert; // insert the map value of the patients[i]  
+        }
+        
+    }
+
+    // create the getAllReocrds methods to get information of patients in arrayList anf return this information
+    public PatientRecord[] getAllRecords() {
+        return patients;
+    }
+
+    // create the find method with parameter is ID with String type to find the patient ID in array of Patients and return the ID
+    public PatientRecord find(String id) {
+        for (int i = 0; i < numRecords; i++) {
+            if (id.equals(patients[i].getId())) {
+                return patients[i];
+            }
+        }
+        return null;
+    }
+
+    // create lowestMAP class, double type to return the lowest MAP
+    public double lowestMAP() {
+        double lowestMAP = patients[0].getMap(); // initialise the lowestMAP = the MAP of the first patient
+        for (int i = 0; i < numRecords; i++) {
+
+            if (patients[i].getMap() < lowestMAP) { // if the MAP of patietn(i) less than lowest MAP
+                lowestMAP = patients[i].getMap(); // lowestMAP equals the map of the patient(i)
+            }
+        }
+        return lowestMAP;
+    }
+
+    // create lowestMAP class, double type to return the highest MAP
+    public double highestMAP() {
+
+        double highestMAP = patients[0].getMap();// initialise the highestMAP = the MAP of the first patient
+        for (int i = 0; i < numRecords; i++) {
+
+            if (patients[i].getMap() > highestMAP) { // if the MAP of patietn(i) higher than highest MAP
+                highestMAP = patients[i].getMap(); // highestMAP equals the map of the patient(i)
+            }
+        }
+        return highestMAP;
+    }
+
+    // create mediantMAP class, double type to return the median MAP
+    public double medianMAP() {
+        sortByMAP();
+        double median;
+        int number = patients.length;
+        
+        
+        if (number%2!=0){
+            double middleMAP = patients[number/2].getMap();
+            median = middleMAP;
+        }
+        else{
+            double MAP1 = patients[(number-1)/2].getMap();
+            double MAP2 = patients[number/2].getMap();
+            median = (MAP1 + MAP2)/2;
+        }
+        return median;
+    }
+
+    // create lowestMAP class, double type to return the average MAP
+    public double averageMAP() {
+        double sum = 0;
+        int counter = 0;
+        for (int i = 0; i < numRecords; i++) {
+            if (patients[i].getMap() > 0) {
+                sum += patients[i].getMap(); //sum map value of entire patients array.
+            }
+            counter++;
+        }
+        double avg = sum / counter;
+        return avg;
+    }
+
+    // create the arrayList of PatientRecord that contain the patients'map is bewteen a range
+    public ArrayList<PatientRecord> find(double map1, double map2) {
+        ArrayList<PatientRecord> list = new ArrayList<>();
+        for (int i = 0; i < numRecords; i++) {
+            double map = patients[i].getMap(); // declare and initialise the map variable
+            if ((map > map1) && (map < map2)) {
+                list.add(patients[i]); // add the patients' information that has map1<map<maps to the list-arrayList
+            }
+        }
+        return list;
+    }
+
+    // create classify class to categise the map values
+    private String classify(double map) {
+        if (map > 100) {   // use if else to categorise the result         
+            return ("high ");
+        } else if (map < 70) {
+            return ("low ");
+        } else {
+            return ("normal ");
+        }
+    }
+
+}
+// create View class
+public class View {
+
+    private MAPAnalyser analyser; // create private avariable with MAPAnalyser type (reference type)
+    int option; // create option varible
+
+    // constructor
+    public View(MAPAnalyser a) {
+        analyser = a;
+    }
+
+    // declare commandloop method
+    public void commandLoop() {
+
+        // display the menu
+        System.out.println("The following commnads are recognised");
+        System.out.println("Display this menu                                         > 0");
+        System.out.println("Display a specific patient record                         > 1 patientID");
+        System.out.println("Display records for all patients with MAP within a range  > 2 MAP1 MAP2");
+        System.out.println("Display statistics (Minimum, maximum, median and average) > 3");
+        System.out.println("Display all records:                                      > 4");
+        System.out.println("Exit application:                                         > 9");
+        System.out.println("> "); // prompt
+        Scanner input = new Scanner(System.in); // imprt Scanner package
+        option = input.nextInt(); // create the option variable to get the information from users
+
+        // use while statement to loop the option if option !=9
+        while (option != 9) {
+            switch (option) {
+                case 0: // get help display the menu again
+
+                    System.out.println("The following commnads are recognised");
+                    System.out.println("Display this menu                                         > 0");
+                    System.out.println("Display a specific patient record                         > 1 patientID");
+                    System.out.println("Display records for all patients with MAP within a range  > 2 MAP1 MAP2");
+                    System.out.println("Display statistics (Minimum, maximum, median and average) > 3");
+                    System.out.println("Display all records:                                      > 4");
+                    System.out.println("Exit application:                                         > 9");
+                    break;
+                case 1:
+                    //findPatientID return the patient's information;
+                    String id = input.next();
+                    analyser.find(id);
+                    PatientRecord patient = analyser.find(id);
+                    if (patient != null) {
+                        System.out.printf("%s%n", analyser.find(id));
+                    } else {
+                        System.out.println("Not found patient");
+                    }
+
+                    break;
+                case 2:
+                    //find the patient information who have MAP within the range of (MAP1 to MAP2);
+                    double map1 = input.nextDouble();
+                    double map2 = input.nextDouble();
+
+                    
+                    if (map1 < map2 && map1>0 && map2<200) {
+                        analyser.find(map1, map2);
+                        ArrayList<PatientRecord> list = analyser.find(map1, map2);
+                        if (list != null) {
+                            System.out.println(list);
+                        } else {
+                            System.out.println("Not found in the range");
+                        }
+                    } else {
+                        System.out.println("These values are out of range ");
+                    }
+
+                    break;
+
+                case 3:
+                    System.out.printf("The lowest MAP value is %.2f%n", analyser.lowestMAP());
+                    System.out.printf("The highest MAP value is %.2f%n", analyser.highestMAP());
+                    System.out.printf("The median MAP value is %.2f%n", analyser.medianMAP());
+                    System.out.printf("The average MAP value is %.2f%n", analyser.averageMAP());
+                    break;
+                
+                case 4:
+                    // display all records
+                    PatientRecord[] records;
+                    records = analyser.getAllRecords();
+                    for (PatientRecord record : records) {
+                        System.out.println(record);
+                    }
+                    break;
+                case 9:
+                    //Exit;
+                    break;
+                default:
+                    System.out.print("Invalid command. Please following the command are regconised ");
+            }
+            System.out.println("> "); // prompt
+            option = input.nextInt();
+        }
+    }
+
+}
+// main method
+public static void main(String[] args) {
+        // TODO code application logic here
+        MAPAnalyser a = new MAPAnalyser(); 
+        System.out.println(a.numRecords);
+        System.out.println(a.patients.length);
+        View v = new View( a ); 
+        v.commandLoop();		// does nothing
+
+    }
+    
+}
